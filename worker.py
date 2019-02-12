@@ -73,7 +73,8 @@ def main():
             f.seek(0)
             f.write('%d\n' % n_finish)        
 
-    with ptl.Lock(finish_counter, 'r') as f:
+    with ptl.Lock(finish_counter, 'r+') as f:
+        # for unknown reasons, flag 'r' throws error sometimes, thus using 'r+' instead
         n_finish = int(f.read())
     is_all_done = n_finish >= n_job
     status_str = 'finished all jobs' if is_all_done else 'no unallocated jobs'
