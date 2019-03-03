@@ -92,7 +92,9 @@ def main():
             run('sudo shutdown -h +1')
         else:
             # Linux
-            run('sudo shutdown -h -t 1')
+			# for unknown reasons, `run` will yield 'FileNotFoundError' under python 3.6
+            from subprocess import call
+            call(['sudo', 'shutdown', '-f', '-h', '-t', '1'])
 
 if __name__ == '__main__':
     main()
