@@ -5,7 +5,8 @@ Can only be run on a single machine (compute node)
 Standalone module, cross-platform
 '''
 
-from os.path import join, dirname, realpath
+from os import remove
+from os.path import join, dirname, realpath, splitext, expanduser, isfile
 from argparse import ArgumentParser
 from subprocess import run
 from multiprocessing import Pool
@@ -34,9 +35,29 @@ def main():
         help='Number of workers per each GPU')        
     opts = parser.parse_args()
 
+    # need to create the counter files before-hand to prevent race condition
+    path_list = ['job_list']
+    for p in path_list:
+        if opts.__dict__[p]:
+            opts.__dict__[p] = expanduser(opts.__dict__[p])
+    no_ext = splitext(opts.job_list)[0]
+    start_counter = no_ext + '-start.txt'
+    finish_counter = no_ext + '-finish.txt'
+    
     if opts.reset:
-        run(['python', worker_path, opts.job_list, '-r'])
+        if isfile(start_counter):
+            remove(start_counter)
+        if isfile(finish_counter):
+            remove(finish_counter)
+        print('Counters have been reset for "%s"' % opts.job_list)
         return
+
+    if not isfile(start_counter):
+         with open(start_counter, 'w') as f:
+             f.write('0\n')
+    if not isfile(finish_counter):
+         with open(finish_counter, 'w') as f:
+             f.write('0\n')
 
     workers = []
     for i in range(opts.n_gpu):
