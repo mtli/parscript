@@ -29,9 +29,9 @@ def main():
         help='Reset counters for a given job list')
     parser.add_argument('-s', '--shutdown', action='store_true', default=False,
         help='Power off the machine when all jobs are done')
-    parser.add_argument('--n-gpu', type=int, default=1,
+    parser.add_argument('-g', '--n-gpu', type=int, default=1,
         help='Number of GPUs')
-    parser.add_argument('--n-worker-per-gpu', type=int, default=1,
+    parser.add_argument('-w', '--n-worker-per-gpu', type=int, default=1,
         help='Number of workers per each GPU')        
     opts = parser.parse_args()
 
