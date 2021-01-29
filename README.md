@@ -14,6 +14,7 @@ Usage:
 - Specify the number of workers (per GPU) through `-w` (default 1)
 - Reset the job counter through `-r`
 - Directly edit `job-list.txt` after launched to add more jobs to it
+- If one job fails, it will not affect other jobs and failed jobs will be recorded and reported at the end.
 
 For example:
 `python -m parscript.dispatcher job-list.txt -g 4 -w 2` means running 8 jobs at a time from the job list using 4 GPUs with 2 jobs on each GPU.
