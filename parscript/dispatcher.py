@@ -5,7 +5,7 @@ Can only be run on a single machine (compute node)
 Standalone module, cross-platform
 '''
 
-from os import remove
+from os import remove, getenv
 from os.path import join, dirname, realpath, splitext, expanduser, isfile
 from argparse import ArgumentParser
 from subprocess import run
@@ -59,9 +59,21 @@ def main():
          with open(finish_counter, 'w') as f:
              f.write('0\n')
 
+    # get CUDA_VISIBLE_DEVICES if set
+    CVD = getenv('CUDA_VISIBLE_DEVICES')
+    if CVD:
+        gpu_list = CVD.split(',')
+        if opts.n_gpu > len(gpu_list):
+            raise ValueError(f'The number of requested GPUs '
+            f'({opts.n_gpu}) is more than the number of available GPUs '
+            f'set by CUDA_VISIBLE_DEVICES ("{CVD}")')
+        gpu_list = [int(x) for x in gpu_list]
+    else:
+        gpu_list = list(range(opts.n_gpu))
+    
     workers = []
     for i in range(opts.n_gpu):
-        workers += opts.n_worker_per_gpu*[[opts, i]]
+        workers += opts.n_worker_per_gpu*[[opts, gpu_list[i]]]
     pool = Pool(len(workers))
     list(pool.imap_unordered(worker_func, workers))
 
